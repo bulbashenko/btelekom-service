@@ -1,0 +1,18 @@
+datasource db {
+  provider = "postgresql" // или "mysql" / "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  uuid       String   // UUID для XRay
+  paidUntil  DateTime? // Когда заканчивается подписка (или null, если не оплачено)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
