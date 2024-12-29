@@ -1,16 +1,22 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Инициализация Prisma
-import { hash } from "bcrypt"; // bcrypt
-import { v4 as uuidv4 } from "uuid";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma'; // Инициализация Prisma
+import { hash } from 'bcrypt'; // bcrypt
+import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+    const normalizedEmail = email.trim().toLowerCase();
 
     // Проверка на существование
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
     if (existingUser) {
-      return NextResponse.json({ error: "Email already used" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Email already used' },
+        { status: 400 }
+      );
     }
 
     // Хэш пароля
@@ -22,16 +28,19 @@ export async function POST(req: Request) {
     // Создаём нового юзера
     await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         uuid: userUUID,
         paidUntil: null, // Пока не оплачено
       },
     });
 
-    return NextResponse.json({ success: true, message: "User registered" });
+    return NextResponse.json({ success: true, message: 'User registered' });
   } catch (err) {
     console.log(err);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
   }
 }

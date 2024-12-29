@@ -1,7 +1,7 @@
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
-import { prisma } from "@/lib/prisma"; // Ваша основная БД
-import dayjs from "dayjs";
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import { prisma } from '@/lib/prisma'; // Ваша основная БД
+import dayjs from 'dayjs';
 
 export async function updateXUI() {
   // 1. Берём из своей БД активных юзеров (подписка ещё не истекла)
@@ -15,7 +15,7 @@ export async function updateXUI() {
 
   // 2. Подключаемся к x-ui.db
   const db = await open({
-    filename: "/etc/x-ui/x-ui.db", // или нужный путь
+    filename: '/etc/x-ui/x-ui.db', // или нужный путь
     driver: sqlite3.Database,
   });
 
@@ -45,11 +45,11 @@ export async function updateXUI() {
 
   // 4. Собираем массив клиентов под x-ui формат
   //    Каждый клиент: { id, email, flow, expiryTime, enable, ... }
-  const newClients = activeUsers.map((user) => ({
+  const newClients = activeUsers.map(user => ({
     // UUID из вашей БД
     id: user.uuid,
     // flow
-    flow: "xtls-rprx-vision",
+    flow: 'xtls-rprx-vision',
     // email (может быть любым уникальным идентификатором)
     email: user.email,
     // Время истечения подписки (unixtime)
@@ -60,8 +60,8 @@ export async function updateXUI() {
     // Остальные поля, если хотите:
     limitIp: 0,
     totalGB: 0,
-    tgId: "",
-    subId: "", // или что-то ещё, если нужно
+    tgId: '',
+    subId: '', // или что-то ещё, если нужно
     reset: 0,
   }));
 
@@ -83,6 +83,5 @@ export async function updateXUI() {
   // (Необязательно) закрываем соединение
   await db.close();
 
-  console.log("VLESS clients успешно обновлены!");
+  console.log('VLESS clients успешно обновлены!');
 }
-

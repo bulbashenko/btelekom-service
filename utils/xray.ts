@@ -1,8 +1,8 @@
 // utils/updateXUI.ts
-import { prisma } from "@/lib/prisma";
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
-import dayjs from "dayjs"; // для удобной работы с датами
+import { prisma } from '@/lib/prisma';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import dayjs from 'dayjs'; // для удобной работы с датами
 
 export async function updateXRayConfig() {
   // 1. Получаем активных юзеров из нашей БД (Postgres/MySQL/SQLite — неважно)
@@ -16,7 +16,7 @@ export async function updateXRayConfig() {
 
   // 2. Открываем /etc/x-ui/x-ui.db
   const db = await open({
-    filename: "/etc/x-ui/x-ui.db",
+    filename: '/etc/x-ui/x-ui.db',
     driver: sqlite3.Database,
   });
 
@@ -32,22 +32,23 @@ export async function updateXRayConfig() {
 
     // 4. Проверяем, нет ли уже записи с таким uuid
     const existing = await db.get(
-      "SELECT * FROM client WHERE uuid = ?",
+      'SELECT * FROM client WHERE uuid = ?',
       userUuid
     );
 
     if (!existing) {
       // Если нет, вставляем
       await db.run(
-        "INSERT INTO client (uuid, email, expire) VALUES (?, ?, ?)",
+        'INSERT INTO client (uuid, email, expire) VALUES (?, ?, ?)',
         [userUuid, userEmail, expireUnix]
       );
     } else {
       // Если есть, обновляем
-      await db.run(
-        "UPDATE client SET email = ?, expire = ? WHERE uuid = ?",
-        [userEmail, expireUnix, userUuid]
-      );
+      await db.run('UPDATE client SET email = ?, expire = ? WHERE uuid = ?', [
+        userEmail,
+        expireUnix,
+        userUuid,
+      ]);
     }
   }
 
@@ -55,14 +56,11 @@ export async function updateXRayConfig() {
   // Чтобы вычистить из x-ui.db
   const expiredUsers = await prisma.user.findMany({
     where: {
-      OR: [
-        { paidUntil: null },
-        { paidUntil: { lte: new Date() } },
-      ],
+      OR: [{ paidUntil: null }, { paidUntil: { lte: new Date() } }],
     },
   });
   for (const user of expiredUsers) {
-    await db.run("DELETE FROM client WHERE uuid = ?", [user.uuid]);
+    await db.run('DELETE FROM client WHERE uuid = ?', [user.uuid]);
   }
 
   // 6. Закрываем соединение

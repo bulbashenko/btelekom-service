@@ -1,87 +1,57 @@
-"use client";
+// app/dashboard/page.tsx
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+'use client';
 
-interface User {
-  email: string;
-  uuid: string;
-  paidUntil: string;
-}
+import { useAuth } from '@/context/AuthContext';
+import { useRedirect } from '@/hooks/useRedirect';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Пользователь должен быть аутентифицирован для доступа к этой странице
+  useRedirect(true, '/login');
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    fetch("/api/user", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Unauthorized");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setUser(data.user);
-      })
-      .catch((err) => {
-        console.error("Ошибка при получении пользователя:", err);
-        router.push("/login");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [router]);
+  const { user, token, loading, signOut } = useAuth();
 
   const handleUpdateXUI = async () => {
     try {
-      const res = await fetch("/api/update-xui", {
-        method: "POST",
+      const res = await fetch('/api/update-xui', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) {
-        throw new Error("Не удалось обновить x-ui");
+        throw new Error('Не удалось обновить x-ui');
       }
       const data = await res.json();
       toast({
-        title: "Успешно",
+        title: 'Успешно',
         description: data.message,
       });
     } catch (error) {
       console.error(error);
       toast({
-        variant: "destructive",
-        title: "Ошибка",
-        description: "Не удалось обновить x-ui",
+        variant: 'destructive',
+        title: 'Ошибка',
+        description: 'Не удалось обновить x-ui',
       });
     }
   };
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center p-4">
+      <div className="flex h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Загрузка...</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="h-4 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 animate-pulse rounded bg-gray-200" />
+            <div className="h-4 animate-pulse rounded bg-gray-200" />
+            <div className="h-4 animate-pulse rounded bg-gray-200" />
           </CardContent>
         </Card>
       </div>
@@ -90,11 +60,11 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="h-screen flex items-center justify-center p-4">
+      <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-6">
             <p className="text-center text-muted-foreground">
-              Не удалось загрузить пользователя
+              Выход выполнен. Пожалуйста, войдите снова.
             </p>
           </CardContent>
         </Card>
@@ -103,20 +73,20 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center p-4 bg-gray-50">
+    <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-xl text-center">Личный кабинет</CardTitle>
+          <CardTitle className="text-center text-xl">Личный кабинет</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="flex flex-col">
               <span className="text-sm text-muted-foreground">Email:</span>
-              <span className="font-medium break-all">{user.email}</span>
+              <span className="break-all font-medium">{user.email}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-muted-foreground">UUID:</span>
-              <span className="font-medium break-all">{user.uuid}</span>
+              <span className="break-all font-medium">{user.uuid}</span>
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-muted-foreground">Paid Until:</span>
@@ -125,6 +95,13 @@ export default function DashboardPage() {
           </div>
           <Button onClick={handleUpdateXUI} className="w-full">
             Обновить x-ui
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={signOut}
+            className="mt-4 w-full"
+          >
+            Выйти
           </Button>
         </CardContent>
       </Card>

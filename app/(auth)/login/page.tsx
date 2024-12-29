@@ -1,65 +1,30 @@
-"use client";
+// app/login/page.tsx
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+'use client';
+
+import { FormEvent, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRedirect } from '@/hooks/useRedirect';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { toast } = useToast();
+  // Пользователь не должен быть аутентифицирован для доступа к странице логина
+  useRedirect(false, '/dashboard');
+
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-        const res = await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-            toast({
-                title: "Ошибка входа",
-                description: data.error || "Неверный email или пароль.",
-                action: <ToastAction altText="Повторить">Повторить</ToastAction>,
-            });
-            return;
-        }
-
-        const token = data.token;
-        localStorage.setItem("token", token);
-
-        toast({
-            title: "Успешный вход",
-            description: "Вы успешно вошли в систему.",
-        });
-
-        // Моментальный редирект на панель управления
-        router.push("/dashboard");
-    } catch (err: unknown) {
-        console.error(err);
-
-        const errorMessage =
-            err instanceof Error ? err.message : "Неизвестная ошибка";
-
-        toast({
-            title: "Неожиданная ошибка",
-            description: `Произошла ошибка: ${errorMessage}. Пожалуйста, попробуйте позже.`,
-        });
-    }
-
+    await signIn(email, password);
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl">Вход</CardTitle>
@@ -74,7 +39,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="Введите ваш email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -85,7 +50,7 @@ export default function LoginPage() {
                   type="password"
                   placeholder="Введите ваш пароль"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                 />
               </div>

@@ -1,65 +1,70 @@
-"use client";
+// app/register/page.tsx
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+'use client';
+
+import { FormEvent, useState } from 'react';
+import { useRedirect } from '@/hooks/useRedirect';
+import { useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { toast } = useToast();
+  // Пользователь не должен быть аутентифицирован для доступа к странице регистрации
+  useRedirect(false, '/dashboard');
 
-  const handleSubmit = async (e: FormEvent) => {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-
       if (!res.ok) {
-        toast({
-          title: "Ошибка регистрации",
-          description: data.error || "Не удалось создать аккаунт.",
-        });
-        return;
+        const data = await res.json();
+        throw new Error(data.error || 'Ошибка при регистрации');
       }
-
       toast({
-        title: "Регистрация успешна",
-        description: "Перенаправление на страницу входа...",
+        title: 'Успех!',
+        description: 'Вы успешно зарегистрированы',
       });
-
-      // Моментальный редирект
-      router.push("/login");
-    } catch (err: unknown) {
-      console.error(err);
-
-      const errorMessage =
-        err instanceof Error ? err.message : "Неизвестная ошибка";
-
-      toast({
-        title: "Неожиданная ошибка",
-        description: `Произошла ошибка: ${errorMessage}. Попробуйте позже.`,
-      });
+      router.push('/login');
+    } catch (error: unknown) {
+      // Changed from 'any' to 'unknown'
+      if (error instanceof Error) {
+        toast({
+          variant: 'destructive',
+          title: 'Ошибка',
+          description: error.message || 'Попробуйте ещё раз',
+        });
+      } else {
+        // Handle cases where the error is not an instance of Error
+        toast({
+          variant: 'destructive',
+          title: 'Ошибка',
+          description: 'Произошла непредвиденная ошибка. Попробуйте ещё раз.',
+        });
+      }
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl">Регистрация</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleRegister}>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
@@ -68,7 +73,7 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="Введите ваш email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -79,7 +84,7 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="Введите ваш пароль"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                 />
               </div>
