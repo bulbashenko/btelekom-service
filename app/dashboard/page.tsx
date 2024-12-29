@@ -7,39 +7,13 @@ import { useRedirect } from '@/hooks/useRedirect';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import PaymentForm from '@/components/PaymentForm';
 
 export default function DashboardPage() {
   // Пользователь должен быть аутентифицирован для доступа к этой странице
   useRedirect(true, '/login');
 
-  const { user, token, loading, signOut } = useAuth();
-
-  const handleUpdateXUI = async () => {
-    try {
-      const res = await fetch('/api/update-xui', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        throw new Error('Не удалось обновить x-ui');
-      }
-      const data = await res.json();
-      toast({
-        title: 'Успешно',
-        description: data.message,
-      });
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: 'destructive',
-        title: 'Ошибка',
-        description: 'Не удалось обновить x-ui',
-      });
-    }
-  };
+  const { user, loading, signOut } = useAuth();
 
   if (loading) {
     return (
@@ -73,7 +47,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="flex flex-col items-center justify-center space-y-6 bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-xl">Личный кабинет</CardTitle>
@@ -90,12 +64,22 @@ export default function DashboardPage() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm text-muted-foreground">Paid Until:</span>
-              <span className="font-medium">{user.paidUntil}</span>
+              <span className="font-medium">
+                {user.paidUntil
+                  ? new Date(user.paidUntil).toLocaleDateString()
+                  : 'Не оплачено'}
+              </span>
             </div>
           </div>
-          <Button onClick={handleUpdateXUI} className="w-full">
+          <Button
+            onClick={() => {
+              /* Ваш обработчик */
+            }}
+            className="w-full"
+          >
             Обновить x-ui
           </Button>
+          <PaymentForm />
           <Button
             variant="destructive"
             onClick={signOut}

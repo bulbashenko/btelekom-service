@@ -8,11 +8,23 @@ generator client {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique // Убедитесь, что это поле уникальное
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
   password   String
   uuid       String
   paidUntil  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  payments   Payment[] // Обратное отношение
+}
+
+model Payment {
+  id         Int      @id @default(autoincrement())
+  paymentId  String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  amount     Float
+  label      String
+  status     String   @default("pending") // pending, completed, failed
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }

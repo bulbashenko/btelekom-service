@@ -3,7 +3,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import crypto from 'crypto';
-import { addNotification, YooMoneyNotification } from '../../../store';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   // Проверка заголовка Content-Type
@@ -20,7 +22,7 @@ export async function POST(request: NextRequest) {
   const params = new URLSearchParams(bodyText);
 
   // Извлечение всех параметров уведомления
-  const notification: YooMoneyNotification = {
+  const notification = {
     notification_type: params.get('notification_type') || '',
     operation_id: params.get('operation_id') || '',
     amount: params.get('amount') || '',
@@ -88,9 +90,64 @@ export async function POST(request: NextRequest) {
     );
     // Здесь можно добавить логику для обработки замороженных переводов
   } else {
-    // Сохранение уведомления в хранилище
-    addNotification(notification);
-    console.log('Уведомление успешно сохранено:', notification);
+    console.log('Уведомление успешно получено:', notification);
+
+    // Обработка успешного платежа
+    // Извлекаем userId и paymentId из label
+    const [userIdStr, paymentId] = notification.label.split('_');
+    const userId = parseInt(userIdStr, 10);
+
+    if (!userId || !paymentId) {
+      console.warn('Invalid label format.');
+      return NextResponse.json(
+        { error: 'Invalid label format' },
+        { status: 400 }
+      );
+    }
+
+    try {
+      // Обновление пользователя: добавляем 30 дней к paidUntil
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        console.warn('User not found:', userId);
+        return NextResponse.json({ error: 'User not found' }, { status: 400 });
+      }
+
+      const currentDate = new Date();
+      let newPaidUntil: Date;
+
+      if (user.paidUntil && user.paidUntil > currentDate) {
+        newPaidUntil = new Date(user.paidUntil);
+        newPaidUntil.setDate(newPaidUntil.getDate() + 30);
+      } else {
+        newPaidUntil = new Date();
+        newPaidUntil.setDate(newPaidUntil.getDate() + 30);
+      }
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { paidUntil: newPaidUntil },
+      });
+
+      console.log(
+        `User ${userId} paidUntil updated to ${newPaidUntil.toISOString()}`
+      );
+
+      // Обновление статуса платежа (если модель Payment создана)
+      await prisma.payment.update({
+        where: { paymentId },
+        data: { status: 'completed' },
+      });
+    } catch (error) {
+      console.error('Error updating user paidUntil:', error);
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 }
+      );
+    }
   }
 
   // Ответ 200 OK
