@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const userUUID = uuidv4();
 
     // Создаём нового юзера
-    const newUser = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         password: hashedPassword,

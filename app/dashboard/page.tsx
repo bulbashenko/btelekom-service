@@ -2,10 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+
+interface User {
+  email: string;
+  uuid: string;
+  paidUntil: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +48,6 @@ export default function DashboardPage() {
       });
   }, [router]);
 
-  // Кнопка, которая делает POST /api/update-xui
   const handleUpdateXUI = async () => {
     try {
       const res = await fetch("/api/update-xui", {
@@ -49,36 +57,77 @@ export default function DashboardPage() {
         throw new Error("Не удалось обновить x-ui");
       }
       const data = await res.json();
-      alert(`Успешно: ${data.message}`);
+      toast({
+        title: "Успешно",
+        description: data.message,
+      });
     } catch (error) {
       console.error(error);
-      alert("Ошибка при обновлении x-ui");
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Не удалось обновить x-ui",
+      });
     }
   };
 
   if (loading) {
-    return <div>Загрузка...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Загрузка...</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>Не удалось загрузить пользователя</div>;
+    return (
+      <div className="h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6">
+            <p className="text-center text-muted-foreground">
+              Не удалось загрузить пользователя
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-xl mb-4">Личный кабинет</h1>
-      <p>Email: {user.email}</p>
-      <p>UUID: {user.uuid}</p>
-      <p>Paid Until: {user.paidUntil}</p>
-
-      {/* Кнопка для обновления /etc/x-ui/x-ui.db */}
-      <button
-        onClick={handleUpdateXUI}
-        className="bg-green-500 text-white px-4 py-2 mt-4 rounded"
-      >
-        Обновить x-ui
-      </button>
+    <div className="h-screen flex items-center justify-center p-4 bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-xl text-center">Личный кабинет</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="flex flex-col">
+              <span className="text-sm text-muted-foreground">Email:</span>
+              <span className="font-medium break-all">{user.email}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-muted-foreground">UUID:</span>
+              <span className="font-medium break-all">{user.uuid}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm text-muted-foreground">Paid Until:</span>
+              <span className="font-medium">{user.paidUntil}</span>
+            </div>
+          </div>
+          <Button onClick={handleUpdateXUI} className="w-full">
+            Обновить x-ui
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
-

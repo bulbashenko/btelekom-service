@@ -8,11 +8,11 @@ generator client {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String   @unique
+  id         Int      @id @default(autoincrement())
+  email      String   @unique // Убедитесь, что это поле уникальное
   password   String
-  uuid       String   // UUID для XRay
-  paidUntil  DateTime? // Когда заканчивается подписка (или null, если не оплачено)
+  uuid       String
+  paidUntil  DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
