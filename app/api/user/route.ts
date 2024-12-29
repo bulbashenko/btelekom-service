@@ -50,10 +50,7 @@ export async function GET(req: NextRequest) {
     const userIdNumber = parseInt(decoded.userId, 10);
 
     if (isNaN(userIdNumber)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
     // Find the user in the database
