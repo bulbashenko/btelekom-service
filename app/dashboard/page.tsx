@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { generateVlessURI } from '@/utils/generateVlessURI';
 import { Copy } from 'lucide-react';
 import { useQRCode } from 'next-qrcode'; // Импортируем useQRCode из next-qrcode
+import PromoForm from '@/components/PromoForm';
 
 export default function DashboardPage() {
   // Пользователь должен быть аутентифицирован для доступа к этой странице
@@ -152,7 +153,7 @@ export default function DashboardPage() {
                   </Button>
 
                   {/* Удалена кнопка для генерации VLESS URI */}
-
+                  <PromoForm />
                   <PaymentForm />
 
                   <Button variant="destructive" onClick={signOut} className="w-full">

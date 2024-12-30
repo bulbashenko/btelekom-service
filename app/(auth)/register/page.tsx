@@ -18,16 +18,34 @@ export default function RegisterPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [secretToken, setSecretToken] = useState('');
+  const [tokenError, setTokenError] = useState('');
+
+  // Функция валидации секретного токена
+  const validateSecretToken = (token: string): boolean => {
+    const secretTokenPattern = /^[A-Za-z0-9]{10,}$/; // Пример: Алфавитно-цифровой, минимум 10 символов
+    return secretTokenPattern.test(token);
+  };
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Сброс предыдущей ошибки
+    setTokenError('');
+
+    // Валидация секретного токена
+    if (!validateSecretToken(secretToken)) {
+      setTokenError('Секретный токен должен содержать не менее 10 алфавитно-цифровых символов.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, secretToken }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -39,7 +57,6 @@ export default function RegisterPage() {
       });
       router.push('/login');
     } catch (error: unknown) {
-      // Changed from 'any' to 'unknown'
       if (error instanceof Error) {
         toast({
           variant: 'destructive',
@@ -47,7 +64,6 @@ export default function RegisterPage() {
           description: error.message || 'Попробуйте ещё раз',
         });
       } else {
-        // Handle cases where the error is not an instance of Error
         toast({
           variant: 'destructive',
           title: 'Ошибка',
@@ -87,6 +103,25 @@ export default function RegisterPage() {
                   onChange={e => setPassword(e.target.value)}
                   required
                 />
+              </div>
+              {/* Новое поле для секретного токена */}
+              <div>
+                <Label htmlFor="secretToken">Секретный токен</Label>
+                <Input
+                  id="secretToken"
+                  type="text"
+                  placeholder="Введите секретный токен"
+                  value={secretToken}
+                  onChange={e => setSecretToken(e.target.value)}
+                  required
+                  aria-invalid={!!tokenError}
+                  aria-describedby="secretToken-error"
+                />
+                {tokenError && (
+                  <p id="secretToken-error" className="text-red-500 text-sm mt-1">
+                    {tokenError}
+                  </p>
+                )}
               </div>
               <Button type="submit" className="w-full">
                 Зарегистрироваться
