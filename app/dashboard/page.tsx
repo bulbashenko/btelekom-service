@@ -118,11 +118,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      <Card className="w-full max-w-4xl bg-transparent shadow-none border-none">
-
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-4xl border-none bg-transparent shadow-none">
         <CardContent>
-          <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+          <div className="flex flex-col space-y-6 lg:flex-row lg:space-x-6 lg:space-y-0">
             {/* Левая колонка: Информация о пользователе и действия */}
             <Card className="flex-1">
               <CardHeader>
@@ -131,7 +130,9 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">Email:</span>
+                    <span className="text-sm text-muted-foreground">
+                      Email:
+                    </span>
                     <span className="break-all font-medium">{user.email}</span>
                   </div>
                   <div className="flex flex-col">
@@ -139,7 +140,9 @@ export default function DashboardPage() {
                     <span className="break-all font-medium">{user.uuid}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm text-muted-foreground">Paid Until:</span>
+                    <span className="text-sm text-muted-foreground">
+                      Paid Until:
+                    </span>
                     <span className="font-medium">
                       {user.paidUntil
                         ? new Date(user.paidUntil).toLocaleDateString()
@@ -156,7 +159,11 @@ export default function DashboardPage() {
                   <PromoForm />
                   <PaymentForm />
 
-                  <Button variant="destructive" onClick={signOut} className="w-full">
+                  <Button
+                    variant="destructive"
+                    onClick={signOut}
+                    className="w-full"
+                  >
                     Выйти
                   </Button>
                 </div>
@@ -171,12 +178,12 @@ export default function DashboardPage() {
               <CardContent>
                 {isGenerating ? (
                   <div className="flex items-center justify-center">
-                    <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                    <div className="loader h-12 w-12 rounded-full border-4 border-t-4 border-gray-200 ease-linear"></div>
                     <span className="ml-4">Генерация...</span>
                   </div>
                 ) : vlessURI ? (
                   <div>
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="mb-4 flex items-center justify-between">
                       <span className="font-medium">VLESS URI:</span>
                       <Button
                         variant="ghost"
@@ -184,11 +191,11 @@ export default function DashboardPage() {
                         onClick={handleCopyURI}
                         aria-label="Копировать URI"
                       >
-                        <Copy className="w-5 h-5" />
+                        <Copy className="h-5 w-5" />
                       </Button>
                     </div>
                     <textarea
-                      className="w-full p-2 bg-white border rounded resize-none"
+                      className="w-full resize-none rounded border bg-white p-2"
                       rows={3}
                       value={vlessURI}
                       readOnly
@@ -201,8 +208,7 @@ export default function DashboardPage() {
                           margin: 3,
                           scale: 4,
                           width: 300,
-                          color: {
-                          },
+                          color: {},
                         }}
                       />
                     </div>

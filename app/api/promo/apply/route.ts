@@ -5,16 +5,19 @@ import { getSession } from '@/lib/auth'; // Убедитесь, что путь 
 import { prisma } from '@/lib/prisma'; // Убедитесь, что путь правильный
 
 export async function POST(request: NextRequest) {
-    // Получение сессии пользователя
-    const session = await getSession(request);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // Получение сессии пользователя
+  const session = await getSession(request);
+  if (!session || !session.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   const { promoCode } = await request.json();
 
   if (!promoCode) {
-    return NextResponse.json({ message: 'Промокод обязателен.' }, { status: 400 });
+    return NextResponse.json(
+      { message: 'Промокод обязателен.' },
+      { status: 400 }
+    );
   }
 
   try {
@@ -24,15 +27,24 @@ export async function POST(request: NextRequest) {
     });
 
     if (!promo) {
-      return NextResponse.json({ message: 'Неверный промокод.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Неверный промокод.' },
+        { status: 400 }
+      );
     }
 
     if (!promo.isActive) {
-      return NextResponse.json({ message: 'Промокод не активен.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Промокод не активен.' },
+        { status: 400 }
+      );
     }
 
     if (promo.expiration && new Date() > promo.expiration) {
-      return NextResponse.json({ message: 'Срок действия промокода истек.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Срок действия промокода истек.' },
+        { status: 400 }
+      );
     }
 
     const usageCount = await prisma.promoUsage.count({
@@ -40,13 +52,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (usageCount >= promo.maxUses) {
-      return NextResponse.json({ message: 'Лимит использования промокода достигнут.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Лимит использования промокода достигнут.' },
+        { status: 400 }
+      );
     }
 
-    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
 
     if (!user) {
-      return NextResponse.json({ message: 'Пользователь не найден.' }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Пользователь не найден.' },
+        { status: 404 }
+      );
     }
 
     const existingUsage = await prisma.promoUsage.findUnique({
@@ -59,7 +79,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUsage) {
-      return NextResponse.json({ message: 'Вы уже использовали этот промокод.' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Вы уже использовали этот промокод.' },
+        { status: 400 }
+      );
     }
 
     // Применение промокода: добавление 15 дней к paidUntil
@@ -86,6 +109,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Ошибка при применении промокода:', error);
-    return NextResponse.json({ message: 'Внутренняя ошибка сервера.' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Внутренняя ошибка сервера.' },
+      { status: 500 }
+    );
   }
 }

@@ -8,9 +8,8 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Input } from '@/components/ui/input';
 
-
 const PromoForm = () => {
-    const { token } = useAuth(); // Получаем токен из контекста
+  const { token } = useAuth(); // Получаем токен из контекста
   const [promoCode, setPromoCode] = useState('');
   const [isApplying, setIsApplying] = useState(false);
 
@@ -64,20 +63,19 @@ const PromoForm = () => {
     }
   };
 
-
   return (
-      <div className="flex items-center space-x-2">
-        <Input
-          type="text"
-          placeholder="Введите промокод"
-          value={promoCode}
-          onChange={(e) => setPromoCode(e.target.value)}
-          disabled={isApplying}
-        />
-        <Button onClick={handleApplyPromo} disabled={isApplying}>
-          {isApplying ? 'Применение...' : 'Применить'}
-        </Button>
-      </div>
+    <div className="flex items-center space-x-2">
+      <Input
+        type="text"
+        placeholder="Введите промокод"
+        value={promoCode}
+        onChange={e => setPromoCode(e.target.value)}
+        disabled={isApplying}
+      />
+      <Button onClick={handleApplyPromo} disabled={isApplying}>
+        {isApplying ? 'Применение...' : 'Применить'}
+      </Button>
+    </div>
   );
 };
 

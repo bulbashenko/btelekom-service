@@ -33,11 +33,10 @@ export async function POST(req: Request) {
     const VALID_SECRET_TOKEN = process.env.SECRET_REGISTRATION_TOKEN;
 
     if (!VALID_SECRET_TOKEN) {
-      console.error('SECRET_REGISTRATION_TOKEN is not defined in environment variables.');
-      return NextResponse.json(
-        { error: 'Серверная ошибка' },
-        { status: 500 }
+      console.error(
+        'SECRET_REGISTRATION_TOKEN is not defined in environment variables.'
       );
+      return NextResponse.json({ error: 'Серверная ошибка' }, { status: 500 });
     }
 
     if (secretToken !== VALID_SECRET_TOKEN) {
@@ -83,7 +82,10 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, message: 'Пользователь зарегистрирован успешно' });
+    return NextResponse.json({
+      success: true,
+      message: 'Пользователь зарегистрирован успешно',
+    });
   } catch (err) {
     console.error('Ошибка регистрации:', err);
     return NextResponse.json(

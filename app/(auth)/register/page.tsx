@@ -35,7 +35,9 @@ export default function RegisterPage() {
 
     // Валидация секретного токена
     if (!validateSecretToken(secretToken)) {
-      setTokenError('Секретный токен должен содержать не менее 10 алфавитно-цифровых символов.');
+      setTokenError(
+        'Секретный токен должен содержать не менее 10 алфавитно-цифровых символов.'
+      );
       return;
     }
 
@@ -118,7 +120,10 @@ export default function RegisterPage() {
                   aria-describedby="secretToken-error"
                 />
                 {tokenError && (
-                  <p id="secretToken-error" className="text-red-500 text-sm mt-1">
+                  <p
+                    id="secretToken-error"
+                    className="mt-1 text-sm text-red-500"
+                  >
                     {tokenError}
                   </p>
                 )}

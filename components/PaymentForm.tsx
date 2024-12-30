@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
-
 const PaymentForm = () => {
   const { token } = useAuth(); // Получаем токен из контекста
   const [loading, setLoading] = useState<boolean>(false);
