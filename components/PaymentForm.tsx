@@ -13,7 +13,7 @@ const PaymentForm = () => {
 
   // Фиксированные суммы
   const fixedAmountDue = 250.0;
-  const fixedSum = 257.73;
+  const fixedSum = 269.77;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
