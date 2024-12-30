@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import { prisma } from '@/lib/prisma'; // Ваша основная БД
@@ -23,7 +22,7 @@ export async function updateXUI() {
 
     // 2. Подключаемся к x-ui.db
     const db = await open({
-      filename: 'db/x-ui/x-ui.db', // Убедитесь, что путь корректен
+      filename: '/root/service/db/x-ui.db', // Убедитесь, что путь корректен
       driver: sqlite3.Database,
     });
 
@@ -63,7 +62,7 @@ export async function updateXUI() {
         id: user.uuid, // UUID из вашей БД
         flow: 'xtls-rprx-vision', // Пример значения, измените при необходимости
         email: user.email, // Email пользователя
-        expiryTime: dayjs(user.paidUntil).unix(), // Время истечения подписки в формате Unix
+        expiryTime: dayjs(user.paidUntil).valueOf(), // Время истечения подписки в миллисекундах
         enable: true, // Активировать клиента
 
         // Дополнительные поля по необходимости

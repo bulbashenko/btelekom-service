@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Валидация входных данных
     const fixedAmountDue = 250.0;
-    const fixedSum = 269.77;
+    const fixedSum = 257.73;
 
     if (amount_due !== fixedAmountDue) {
       return NextResponse.json(
