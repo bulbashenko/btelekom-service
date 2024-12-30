@@ -86,7 +86,7 @@ const PaymentsPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-50 p-4">
+    <div className="flex h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-3xl">
         <CardHeader>
           <CardTitle className="text-center text-xl">
